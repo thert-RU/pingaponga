@@ -1,0 +1,62 @@
+from pygame import *
+
+class GameSprite(sprite.Sprite):
+    def __init__(self, player_image, player_x, player_y, size_x, size_y, player_speed):
+        sprite.Sprite.__init__(self)
+        self.image = transform.scale(image.load(player_image), (size_x, size_y))
+        self.speed = player_speed
+        self.rect = self.image.get_rect()
+        self.rect.x = player_x
+        self.rect.y = player_y
+
+    def reset(self):
+        window.blit(self.image, (self.rect.x, self.rect.y))
+ 
+class Rocket(GameSprite):
+    def __init__(self, up, down):
+        super().__init__()
+        self.up = up
+        self.down = down
+    def update(self):
+        keys = key.get_pressed()
+        if keys[self.up] and self.rect.y > 5:
+            self.rect.y -= self.speed
+        if keys[self.down] and self.rect.y < 395:
+            self.rect.y += self.speed
+
+class Ball(GameSprite):
+    def __init__(self, speedx, speedy):
+        super().__init__()
+        self.speedx = speedx
+        self.speedy = speedy
+    def otskok_x(self):
+        self.speedx = -self.speedx
+    def otskok_y(self):
+        self.speedy = -self.speedy
+    def update(self):
+        self.rect.x += self.speedx
+        self.rect.y += self.speedy
+img_back = 'img_back.png'
+win_width = 700
+win_height = 500
+display.set_caption("Shooter")
+window = display.set_mode((win_width, win_height))
+background = transform.scale(image.load(img_back), (win_width, win_height))
+
+left_rocket = Rocket('left_rocket.png', 600, 200, 20, 100, 2, K_w, K_s)
+right_rocket = Rocket('right_rocket.png', 100, 200, 20, 100, 2, K_up, K_down)
+ball = Ball(ball.png, 325, 225, 50, 50, 0, 3, 3)
+
+while True:
+    left_rocket.update()
+    right_rocket.update()
+    ball.update()
+    left_rocket.reset()
+    right_rocket.reset()
+    ball.reset()
+
+    if sprite.spritecollide(ball, left_rocket, False) or sprite.spritecollide(ball, right_rocket, False):
+        ball.otskok_x()
+    
+    if not (ball.rect.y > 5) or not (ball.rect.y < 365):
+        ball.otskok_y()

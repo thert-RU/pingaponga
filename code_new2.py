@@ -1,8 +1,10 @@
 from random import shuffle, randint
 import pygame
 import time
+
 pygame.font.init()
 font1 = pygame.font.SysFont('Arial', 80)
+font2 = pygame.font.SysFont('Arial', 30)
 min_speed = 1
 
 class GameSprite(pygame.sprite.Sprite):
@@ -71,6 +73,9 @@ win_height = 500
 pygame.display.set_caption("pingaponga")
 window = pygame.display.set_mode((win_width, win_height))
 background = pygame.transform.scale(pygame.image.load('img_back.png'), (win_width, win_height))
+background_menu = pygame.transform.scale(pygame.image.load('img_menu_back.png'), (win_width, win_height))
+
+menu_button_start = GameSprite('button_play.png', 175, 175, 350, 150, 0)
 
 speeds = [2, -2, 2, -2]
 shuffle(speeds)
@@ -84,31 +89,41 @@ rockets = pygame.sprite.Group()
 rockets.add(left_rocket)
 rockets.add(right_rocket)
 
-cooldown_collidex = 0
-cooldown_collidey = 0
-start = 4
+cooldown_collidex = -0.4
+cooldown_collidey = -0.4
+start = 5
 run = True
+menu = True
 finish = False
 
 ball_speed_start  = time.time()
 start_counter = time.time() - 1.2
+
+
+
 while run:
     rockets.speed = min_speed + 2
+    
+    mouse_click = False 
     for e in pygame.event.get():
-       if e.type == pygame.QUIT:
+        if e.type == pygame.QUIT:
            run = False
+        if e.type == pygame.MOUSEBUTTONDOWN:
+            cursor_x = e.pos[0]
+            cursor_y = e.pos[1]
+            mouse_click = True
 
-    if not finish:
+    if not menu:
         window.blit(background,(0,0))
         rockets.draw(window)
         ball.reset()
         real_time = time.time()
 
-        if start != 0:
-            if real_time - start_counter >= 1.2:
+        if real_time - start_counter >= 1.2:
+            if start != 0:
                 start -= 1
-                if start != 0:
-                    start_timer = font1.render(str(start), 1, (255,255,255))
+                if start != 1:
+                    start_timer = font1.render(str(start-1), 1, (255,255,255))
                     window.blit(start_timer, (320, 100))
                 else:
                     start_timer = font1.render('START!', 1, (255,255,255))
@@ -117,39 +132,66 @@ while run:
                 pygame.display.update()
                 
         if start == 0:
-            rockets.update()
-            ball.update()
+            if not finish:
+                rockets.update()
+                ball.update()
 
-            if  not (ball.rect.x < left_rocket.rect.x or ball.rect.x > right_rocket.rect.x + 20):
+                if  not (ball.rect.x < left_rocket.rect.x or ball.rect.x > right_rocket.rect.x + 20):
 
-                if pygame.sprite.spritecollide(ball, rockets, False):
-                    if real_time - cooldown_collidex >= 0.35:
-                        ball.otskok_x()
-                        cooldown_collidex = real_time
+                    if pygame.sprite.spritecollide(ball, rockets, False):
+                        if real_time - cooldown_collidex >= 0.35:
+                            ball.otskok_x()
+                            cooldown_collidex = real_time
 
-            if not (ball.rect.y > 5):
-                ball.rect.y = 5
-                if real_time - cooldown_collidey >= 0.35:    
-                    ball.otskok_y()
-                    cooldown_collidey = real_time
+                if not (ball.rect.y > 5):
+                    ball.rect.y = 5
+                    if real_time - cooldown_collidey >= 0.35:    
+                        ball.otskok_y()
+                        cooldown_collidey = real_time
 
-            elif not (ball.rect.y < 445):
-                ball.rect.y = 445
-                if real_time - cooldown_collidey >= 0.35:    
-                    ball.otskok_y()
-                    cooldown_collidey = real_time
+                elif not (ball.rect.y < 445):
+                    ball.rect.y = 445
+                    if real_time - cooldown_collidey >= 0.35:    
+                        ball.otskok_y()
+                        cooldown_collidey = real_time
+                
+                if real_time - ball_speed_start >= 5:
+                    min_speed += 1
+                    ball_speed_start = time.time()
+            
             if ball.rect.x <= 0 or ball.rect.x >= 650:
                 finish = True
                 win = font1.render('GAME OVER', True, (255, 255, 255))
+                clk_for_con = font2.render('(Кликните, чтобы продолжить)', True, (255, 255, 255)) 
                 window.blit(win, (135, 200))
-            
-            if real_time - ball_speed_start >= 5:
-                min_speed += 1
-                ball_speed_start = time.time()
-            
+                window.blit(clk_for_con, (165, 300))
+                if mouse_click:
+                    menu = True
 
             pygame.display.update()
-
-        
             
-        pygame.time.delay(10)
+
+
+    else:
+        window.blit(background_menu, (0,0))
+        menu_button_start.reset()
+
+        if mouse_click and cursor_x > 175 and cursor_x < 525 and cursor_y > 175 and cursor_y < 325:           
+            menu = False
+            finish = False
+
+            speeds = [2, -2, 2, -2]
+            shuffle(speeds)
+
+            ball = Ball('ball.png', randint(300, 350), randint(200,250), 50, 50, 0, speeds[0], speeds[1])
+            left_rocket = Rocket('left_rocket.png', 100, 200, 20, 100, 5, 1)
+            right_rocket = Rocket('right_rocket.png', 600, 200, 20, 100, 5, 2)
+
+            rockets = pygame.sprite.Group()
+            rockets.add(left_rocket)
+            rockets.add(right_rocket)
+
+            min_speed = 1
+            start = 5
+        pygame.display.update()
+    pygame.time.delay(10)

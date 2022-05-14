@@ -1,7 +1,11 @@
 from random import shuffle, randint
 import pygame
 import time
+import json
 
+with open("results_data.json", "r", encoding='utf-8') as file:
+    results_statistic = json.load(file)
+print(results_statistic)
 pygame.font.init()
 font1 = pygame.font.SysFont('Arial', 80)
 font2 = pygame.font.SysFont('Arial', 30)
@@ -74,8 +78,11 @@ pygame.display.set_caption("pingaponga")
 window = pygame.display.set_mode((win_width, win_height))
 background = pygame.transform.scale(pygame.image.load('img_back.png'), (win_width, win_height))
 background_menu = pygame.transform.scale(pygame.image.load('img_menu_back.png'), (win_width, win_height))
+background_results = pygame.transform.scale(pygame.image.load('img_results_back.png'), (win_width, win_height))
 
-menu_button_start = GameSprite('button_play.png', 175, 175, 350, 150, 0)
+menu_button_start = GameSprite('button_play.png', 175, 100, 350, 150, 0)
+menu_button_results = GameSprite('results_button.png', 175, 320, 350, 150, 0)
+results_button_back = GameSprite('button_back.png', 225, 310, 250, 60, 0)
 
 speeds = [2, -2, 2, -2]
 shuffle(speeds)
@@ -95,6 +102,8 @@ start = 5
 run = True
 menu = True
 finish = False
+results = False
+game = False
 
 ball_speed_start  = time.time()
 start_counter = time.time() - 1.2
@@ -113,7 +122,7 @@ while run:
             cursor_y = e.pos[1]
             mouse_click = True
 
-    if not menu:
+    if game:
         window.blit(background,(0,0))
         rockets.draw(window)
         ball.reset()
@@ -129,7 +138,7 @@ while run:
                     start_timer = font1.render('START!', 1, (255,255,255))
                     window.blit(start_timer, (250, 100))
                 start_counter = time.time()
-                pygame.display.update()
+                
                 
         if start == 0:
             if not finish:
@@ -167,19 +176,21 @@ while run:
                 window.blit(clk_for_con, (165, 300))
                 if mouse_click:
                     menu = True
+                    game = False
 
-            pygame.display.update()
+            
             
 
 
-    else:
+    elif menu:
         window.blit(background_menu, (0,0))
         menu_button_start.reset()
+        menu_button_results.reset()
 
-        if mouse_click and cursor_x > 175 and cursor_x < 525 and cursor_y > 175 and cursor_y < 325:           
+        if mouse_click and cursor_x > 175 and cursor_x < 525 and cursor_y > 100 and cursor_y < 250:           
             menu = False
             finish = False
-
+            game = True
             speeds = [2, -2, 2, -2]
             shuffle(speeds)
 
@@ -193,5 +204,36 @@ while run:
 
             min_speed = 1
             start = 5
-        pygame.display.update()
+        
+        if mouse_click and cursor_x > 175 and cursor_x < 525 and cursor_y > 310 and cursor_y < 370:   
+            menu = False
+            results = True
+
+    elif results:
+        window.blit(background_results, (0,0))
+        results_button_back.reset()
+
+        place1 = font2.render(results_statistic['1'][0], True, (255, 255, 255))
+        place2 = font2.render(results_statistic['2'][0], True, (255, 255, 255))
+        place3 = font2.render(results_statistic['3'][0], True, (255, 255, 255))
+        place4 = font2.render(results_statistic['4'][0], True, (255, 255, 255))
+        window.blit(place1, (100, 90))
+        window.blit(place2, (100, 180))
+        window.blit(place3, (100, 265))
+        window.blit(place4, (100, 350))
+
+        place1_score = font2.render(str(results_statistic['1'][1]), True, (255, 255, 255))
+        place2_score = font2.render(str(results_statistic['2'][1]), True, (255, 255, 255))
+        place3_score = font2.render(str(results_statistic['3'][1]), True, (255, 255, 255))
+        place4_score = font2.render(str(results_statistic['4'][1]), True, (255, 255, 255))
+        window.blit(place1_score, (540, 90))
+        window.blit(place2_score, (540, 180))
+        window.blit(place3_score, (540, 265))
+        window.blit(place4_score, (540, 350))
+
+        if mouse_click and cursor_x > 175 and cursor_x < 525 and cursor_y > 400 and cursor_y < 480:   
+            menu = True
+            results = False
+
+    pygame.display.update()
     pygame.time.delay(10)

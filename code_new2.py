@@ -1,11 +1,11 @@
 from random import shuffle, randint
 import pygame
 import time
-import json
+'''import json
 
 with open("results_data.json", "r", encoding='utf-8') as file:
     results_statistic = json.load(file)
-print(results_statistic)
+print(results_statistic)'''
 pygame.font.init()
 font1 = pygame.font.SysFont('Arial', 80)
 font2 = pygame.font.SysFont('Arial', 30)
@@ -81,8 +81,8 @@ background_menu = pygame.transform.scale(pygame.image.load('img_menu_back.png'),
 background_results = pygame.transform.scale(pygame.image.load('img_results_back.png'), (win_width, win_height))
 
 menu_button_start = GameSprite('button_play.png', 175, 100, 350, 150, 0)
-menu_button_results = GameSprite('results_button.png', 175, 320, 350, 150, 0)
-results_button_back = GameSprite('button_back.png', 225, 310, 250, 60, 0)
+'''menu_button_results = GameSprite('results_button.png', 175, 320, 350, 150, 0)
+results_button_back = GameSprite('button_back.png', 225, 410, 250, 60, 0)'''
 
 speeds = [2, -2, 2, -2]
 shuffle(speeds)
@@ -102,7 +102,6 @@ start = 5
 run = True
 menu = True
 finish = False
-results = False
 game = False
 
 ball_speed_start  = time.time()
@@ -138,6 +137,7 @@ while run:
                     start_timer = font1.render('START!', 1, (255,255,255))
                     window.blit(start_timer, (250, 100))
                 start_counter = time.time()
+            pygame.display.update()
                 
                 
         if start == 0:
@@ -177,6 +177,7 @@ while run:
                 if mouse_click:
                     menu = True
                     game = False
+            pygame.display.update()
 
             
             
@@ -185,9 +186,9 @@ while run:
     elif menu:
         window.blit(background_menu, (0,0))
         menu_button_start.reset()
-        menu_button_results.reset()
+        #menu_button_results.reset()
 
-        if mouse_click and cursor_x > 175 and cursor_x < 525 and cursor_y > 100 and cursor_y < 250:           
+        if mouse_click and cursor_x > 175 and cursor_x < 425 and cursor_y > 100 and cursor_y < 250:           
             menu = False
             finish = False
             game = True
@@ -205,11 +206,12 @@ while run:
             min_speed = 1
             start = 5
         
-        if mouse_click and cursor_x > 175 and cursor_x < 525 and cursor_y > 310 and cursor_y < 370:   
+        '''if mouse_click and cursor_x > 175 and cursor_x < 525 and cursor_y > 310 and cursor_y < 470:   
             menu = False
-            results = True
+            results = True'''
+        pygame.display.update()
 
-    elif results:
+    '''elif results:
         window.blit(background_results, (0,0))
         results_button_back.reset()
 
@@ -231,9 +233,10 @@ while run:
         window.blit(place3_score, (540, 265))
         window.blit(place4_score, (540, 350))
 
-        if mouse_click and cursor_x > 175 and cursor_x < 525 and cursor_y > 400 and cursor_y < 480:   
+        if mouse_click and cursor_x > 225 and cursor_x < 575 and cursor_y > 400 and cursor_y < 480:   
             menu = True
             results = False
+        pygame.display.update()'''
 
-    pygame.display.update()
+    
     pygame.time.delay(10)
